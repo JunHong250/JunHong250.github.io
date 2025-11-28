@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>사주 분석 웹서비스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #050814;
+      --bg-card: rgba(10, 15, 35, 0.95);
+      --accent: #0ef3a8;
+      --accent-soft: rgba(14, 243, 168, 0.15);
+      --accent-second: #3f8cff;
+      --text-main: #f5f7ff;
+      --text-sub: #9aa3c2;
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --error: #ff4b6e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Roboto Condensed", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #142045 0, #050814 55%, #020308 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 920px;
+      background: linear-gradient(135deg, rgba(63, 140, 255, 0.18), rgba(14, 243, 168, 0.08));
+      padding: 1px;
+      border-radius: 24px;
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.65),
+        0 0 40px rgba(14, 243, 168, 0.2);
+    }
+
+    .app-inner {
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 24px 24px 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 780px) {
+      .app-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Orbitron", sans-serif;
+      font-size: 16px;
+      box-shadow: 0 0 20px rgba(14, 243, 168, 0.4);
+    }
+
+    .brand-text-main {
+      font-family: "Orbitron", sans-serif;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .panel {
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      padding: 18px 16px 14px;
+      background: radial-gradient(circle at top left, rgba(14, 243, 168, 0.16), transparent 55%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-sub);
+    }
+
+    .panel-sub {
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    input {
+      background: rgba(1, 4, 15, 0.9);
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: border 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    input::placeholder {
+      color: rgba(154, 163, 194, 0.7);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .btn-primary {
+      padding: 9px 20px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-second));
+      color: #050814;
+      box-shadow:
+        0 0 18px rgba(14, 243, 168, 0.5),
+        0 12px 24px rgba(0, 0, 0, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .result-panel {
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      padding: 18px 16px;
+      background: radial-gradient(circle at top right, rgba(63, 140, 255, 0.2), transparent 55%);
+    }
+
+    .result-box {
+      background: rgba(4, 8, 24, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 12px;
+      border-radius: 14px;
+      max-height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+
+    .error-text {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <div class="app-inner">
+
+      <!-- 왼쪽 입력 -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">입력 패널</div>
+          <div class="panel-sub">TYPE INPUTS</div>
+        </div>
+
+        <form id="saju-form" class="form-grid" onsubmit="register(event)">
+
+          <!-- 생년월일 -->
+          <div class="field-group">
+            <label for="birthDate">생년월일 (YYYY-MM-DD)</label>
+            <input type="text" id="birthDate" placeholder="예: 2001-08-15" required />
+          </div>
+
+          <!-- 출생지 -->
+          <div class="field-group">
+            <label for="birthPlace">출생지</label>
+            <input type="text" id="birthPlace" placeholder="예: 광주광역시" required />
+          </div>
+
+          <!-- 출생 시간 -->
+          <div class="field-group">
+            <label for="birthTime">출생 시간 (HH:MM)</label>
+            <input type="text" id="birthTime" placeholder="예: 13:45" />
+            <div class="checkbox-row">
+              <input type="checkbox" id="unknownTime" />
+              <label for="unknownTime">출생 시간을 모릅니다</label>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="submit-btn">사주 분석 요청</button>
+
+          <div class="error-text" id="error-text" style="display:none;"></div>
+        </form>
+      </section>
+
+      <!-- 오른쪽 결과 -->
+      <section class="result-panel">
+        <div class="result-title">사주 결과</div>
+        <div class="result-box" id="result-box">
+          입력 후 결과가 여기에 표시됩니다.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const SERVER_URL = ""; // 나중에 백엔드 URL 넣기
+
+    async function register(event) {
+      event.preventDefault();
+
+      const birthDate = document.getElementById("birthDate").value.trim();
+      const birthPlace = document.getElementById("birthPlace").value.trim();
+      const unknownTime = document.getElementById("unknownTime").checked;
+      let birthTime = document.getElementById("birthTime").value.trim();
+      const resultBox = document.getElementById("result-box");
+      const errorText = document.getElementById("error-text");
+
+      errorText.style.display = "none";
+
+      if (unknownTime) birthTime = null;
+
+      const payload = {
+        birthDate,
+        birthPlace,
+        birthTime
+      };
+
+      resultBox.textContent = "서버에 요청 중...";
+
+      try {
+        const response = await fetch(SERVER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("응답 오류");
+
+        const data = await response.json();
+
+        const fortuneText =
+          data.fortuneText ||
+          data.result ||
+          JSON.stringify(data, null, 2);
+
+        resultBox.textContent = fortuneText;
+      } catch (err) {
+        resultBox.textContent =
+          "SERVER_URL이 비어있어 요청이 실패했습니다.\n백엔드 주소 연결 후 정상 작동합니다.";
+
+        errorText.style.display = "block";
+        errorText.textContent = "오류: " + err.message;
+      }
+    }
+
+    document.getElementById("unknownTime").addEventListener("change", (e) => {
+      const timeInput = document.getElementById("birthTime");
+      if (e.target.checked) {
+        timeInput.disabled = true;
+        timeInput.value = "";
+      } else {
+        timeInput.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+
