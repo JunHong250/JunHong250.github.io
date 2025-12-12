@@ -2,14 +2,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>사주 분석 웹서비스</title>
+  <title>사주 운세 골라서 보기</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ---------------------------------------------------------
-       전체 배경: CSS 한지 느낌
-    --------------------------------------------------------- */
     body {
       margin: 0;
       padding: 24px;
@@ -32,9 +29,6 @@
       box-sizing: border-box;
     }
 
-    /* ---------------------------------------------------------
-       전체 레이아웃: 왼쪽 입력, 오른쪽 출력
-    --------------------------------------------------------- */
     .app-inner {
       width: 100%;
       max-width: 1200px;
@@ -49,20 +43,12 @@
       }
     }
 
-    /* ---------------------------------------------------------
-       전통 스타일 패널 (입력 / 출력 공통)
-    --------------------------------------------------------- */
     .panel,
     .result-panel {
       position: relative;
       padding: 22px;
-
       background:
-        linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.96),
-          rgba(248, 241, 229, 0.96)
-        ),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 241, 229, 0.96)),
         repeating-linear-gradient(
           135deg,
           rgba(255, 255, 255, 0.4),
@@ -70,19 +56,14 @@
           rgba(239, 230, 216, 0.5) 3px,
           rgba(239, 230, 216, 0.5) 6px
         );
-
       border-radius: 14px;
       border: 2px solid rgba(50, 38, 26, 0.6);
       box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
       overflow: hidden;
     }
 
-    /* 입력 패널은 내용만큼만 높이 */
-    .panel {
-      align-self: flex-start;
-    }
+    .panel { align-self: flex-start; }
 
-    /* 패널 상단 전통 문양 느낌 */
     .panel::before,
     .result-panel::before {
       content: "";
@@ -93,20 +74,12 @@
       height: 140px;
       background:
         radial-gradient(circle at 30% 30%, rgba(191, 167, 122, 0.4), transparent 60%),
-        conic-gradient(
-          from 45deg,
-          rgba(145, 106, 60, 0.25),
-          transparent 60%,
-          rgba(145, 106, 60, 0.25)
-        );
+        conic-gradient(from 45deg, rgba(145, 106, 60, 0.25), transparent 60%, rgba(145, 106, 60, 0.25));
       opacity: 0.25;
       mix-blend-mode: multiply;
       pointer-events: none;
     }
 
-    /* ---------------------------------------------------------
-       제목 (입력 부분 / 출력 부분)
-    --------------------------------------------------------- */
     .panel-title,
     .result-title {
       font-size: 23px;
@@ -117,12 +90,7 @@
       margin-bottom: 18px;
     }
 
-    /* ---------------------------------------------------------
-       입력 폼
-    --------------------------------------------------------- */
-    label {
-      font-size: 15px;
-    }
+    label { font-size: 15px; }
 
     input[type="text"] {
       width: 100%;
@@ -130,12 +98,7 @@
       margin-top: 6px;
       border-radius: 10px;
       border: 1.5px solid #c2b8a8;
-      background:
-        linear-gradient(
-          to bottom,
-          #fdfbf7,
-          #f6efe4
-        );
+      background: linear-gradient(to bottom, #fdfbf7, #f6efe4);
       font-size: 15px;
       box-sizing: border-box;
     }
@@ -146,11 +109,7 @@
       outline: none;
     }
 
-    /* 체크박스 줄 – 자연스럽게 왼쪽 정렬 */
-    .checkbox-row {
-      margin-top: 10px;
-    }
-
+    .checkbox-row { margin-top: 10px; }
     .checkbox-row label {
       display: inline-flex;
       align-items: center;
@@ -158,29 +117,58 @@
       font-size: 14px;
       cursor: pointer;
     }
+    .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; margin: 0; }
 
-    .checkbox-row input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      margin: 0;
+    /* ✅ 운세 선택(라디오) UI */
+    .fortune-title {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #5b3e1a;
     }
 
-    /* ---------------------------------------------------------
-       버튼 – 한복 금사 느낌
-    --------------------------------------------------------- */
+    .fortune-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .fortune-option input { display: none; }
+
+    .fortune-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1.5px solid #c2b8a8;
+      background: rgba(255,255,255,0.75);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      color: #4b3a22;
+      transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease, background .08s ease;
+    }
+
+    .fortune-option input:checked + .fortune-pill {
+      border-color: #bfa77a;
+      background: linear-gradient(135deg, rgba(191,167,122,0.30), rgba(140,110,61,0.18));
+      box-shadow: 0 6px 14px rgba(0,0,0,0.14);
+      transform: translateY(-1px);
+    }
+
     .btn-primary {
       margin-top: 16px;
       width: 100%;
       padding: 12px 20px;
       border: none;
       border-radius: 12px;
-
       background: linear-gradient(135deg, #bfa77a, #8c6e3d);
       color: #fff;
       cursor: pointer;
       font-size: 16px;
       font-weight: bold;
-
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
     }
@@ -191,19 +179,11 @@
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
     }
 
-    /* ---------------------------------------------------------
-       출력 박스 – 커다란 한지 족자 느낌
-    --------------------------------------------------------- */
     .result-box {
       margin-top: 6px;
       padding: 18px;
-
       background:
-        linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.98),
-          rgba(250, 244, 233, 0.98)
-        ),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 244, 233, 0.98)),
         repeating-linear-gradient(
           0deg,
           rgba(235, 227, 215, 0.4),
@@ -211,16 +191,13 @@
           rgba(250, 244, 233, 0.4) 2px,
           rgba(250, 244, 233, 0.4) 4px
         );
-
       border-radius: 12px;
       border: 1.5px solid #d4ccc0;
-
-      min-height: 550px;
+      min-height: 420px;
       max-height: 650px;
       overflow-y: auto;
-
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.6;
       white-space: pre-wrap;
     }
 
@@ -260,7 +237,28 @@
           </label>
         </div>
 
-        <button class="btn-primary">사주 분석 요청</button>
+        <!-- ✅ 운세 선택 -->
+        <div class="fortune-title">어떤 운을 보고 싶나요?</div>
+        <div class="fortune-grid" role="radiogroup" aria-label="운세 선택">
+          <label class="fortune-option">
+            <input type="radio" name="fortuneType" value="재물운" checked />
+            <span class="fortune-pill">재물운</span>
+          </label>
+          <label class="fortune-option">
+            <input type="radio" name="fortuneType" value="연애운" />
+            <span class="fortune-pill">연애운</span>
+          </label>
+          <label class="fortune-option">
+            <input type="radio" name="fortuneType" value="직장운" />
+            <span class="fortune-pill">직장운</span>
+          </label>
+          <label class="fortune-option">
+            <input type="radio" name="fortuneType" value="건강운" />
+            <span class="fortune-pill">건강운</span>
+          </label>
+        </div>
+
+        <button class="btn-primary">선택한 운세 보기</button>
 
         <div id="error-text"></div>
       </form>
@@ -268,9 +266,9 @@
 
     <!-- 출력 패널 -->
     <section class="result-panel">
-      <div class="result-title">출력 부분</div>
+      <div class="result-title">사주 운세</div>
       <div class="result-box" id="result-box">
-        입력 후 결과가 표시됩니다.
+        입력 후 결과가 표시됩니다. 
       </div>
     </section>
   </div>
@@ -289,6 +287,9 @@
 
       if (unknownTime) birthTime = null;
 
+      const selected = document.querySelector('input[name="fortuneType"]:checked');
+      const fortuneType = selected ? selected.value : "재물운";
+
       const resultBox = document.getElementById("result-box");
       const errorText = document.getElementById("error-text");
 
@@ -299,14 +300,16 @@
         const response = await fetch(SERVER_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ birthDate, birthPlace, birthTime })
+          body: JSON.stringify({ birthDate, birthPlace, birthTime, fortuneType })
         });
 
         if (!response.ok) throw new Error("서버 응답 오류");
 
         const data = await response.json();
-        resultBox.textContent =
-          data.fortuneText || data.result || JSON.stringify(data, null, 2);
+
+        // ✅ 백엔드가 fortune 필드로 내려주도록 맞춰둠
+        const fortuneText = data.fortune || data.result || data.fortuneText || JSON.stringify(data, null, 2);
+        resultBox.textContent = fortuneText;
       } catch (err) {
         resultBox.textContent =
           "요청 실패. 서버 URL 또는 네트워크 상태를 확인해 주세요.";
@@ -323,6 +326,7 @@
   </script>
 </body>
 </html>
+
 
 
 
